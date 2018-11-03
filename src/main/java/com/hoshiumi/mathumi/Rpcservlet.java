@@ -4,7 +4,10 @@ package com.hoshiumi.mathumi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.hoshiumi.mathumi.mapper.*;
@@ -18,11 +21,12 @@ public class Rpcservlet {
 	private UserMapper UserMapper;
 	
 	
-	@GetMapping("/welcome/user")
+	@RequestMapping(value="/welcome/user",
+			method = RequestMethod.POST)
     @ResponseBody
-    public String welcomeUser() {
-		
-        return UserMapper.getAll().toString();
+    @CrossOrigin(origins = "http://localhost:8080")
+    public Welcome welcomeUser(@RequestParam(name="name", required=false, defaultValue="Java Fan") String name) {
+        return new Welcome(String.format(welcomemsg, name));
     }
 
 }
