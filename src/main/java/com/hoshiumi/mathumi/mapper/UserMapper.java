@@ -11,8 +11,6 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Component;
 import com.hoshiumi.mathumi.entity.UserEntity;
 
-@SuppressWarnings("unused")
-@Component
 public interface UserMapper {
 
     @Select("SELECT * FROM user")

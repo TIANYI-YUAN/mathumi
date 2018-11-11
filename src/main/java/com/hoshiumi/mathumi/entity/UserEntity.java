@@ -12,13 +12,14 @@ public class UserEntity implements Serializable {
 	private String lastname;
     private String phone;
     private String address;
-
+    private String logincookie;
+    
 	public UserEntity() {
 		super();
 	}
 
 	public UserEntity(String username, String password_salthash,
-                      String firstname,String lastname,String phone,String address) {
+                      String firstname,String lastname,String phone,String address,String logincookie) {
 		super();
         this.username = username;
 		this.password_salthash = password_salthash;
@@ -26,7 +27,7 @@ public class UserEntity implements Serializable {
         this.lastname = lastname;
         this.phone = phone;
         this.address = address;
-
+        this.logincookie = logincookie;
 	}
 
 	public Long getUserid() {
@@ -83,6 +84,14 @@ public class UserEntity implements Serializable {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+	
+	public String getLogincookie() {
+		return logincookie;
+	}
+
+	public void setLogincookie(String logincookie) {
+		this.logincookie = logincookie;
 	}
 
 
