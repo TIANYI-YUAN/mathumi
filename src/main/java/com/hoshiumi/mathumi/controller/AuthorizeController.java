@@ -60,7 +60,7 @@ public class AuthorizeController {
 	
 	@RequestMapping(value="/rpc/authorize",method = RequestMethod.POST)
     @ResponseBody
-    @CrossOrigin(origins = "http://localhost:8080")
+    @CrossOrigin//(origins = "http://localhost:8080")
     public Map<String,String> function(@RequestParam(name="methodId", required=true)int functionid,@RequestParam(name="postData", required=true)String other) throws JsonMappingException, IOException {
 
 		ObjectMapper mapper = new ObjectMapper(); 
@@ -116,7 +116,7 @@ public class AuthorizeController {
 		}else if(AuthorizeMapper.getLoginCookieByUsername(username).equals(cookie)) {
 			rs.put("response", "ok");
 		}else {
-			rs.put("response", "error");
+			rs.put("response", "compareCookie error");
 		}
 		return rs;
 	}
@@ -130,7 +130,18 @@ public class AuthorizeController {
 	}
 	
 	public Map<String,String> genSmsVert(String mobile) {
+		System.out.println("genSmsVert");
 		Map<String,String> rs = new HashMap<String,String>();
+		mobile = mobile.trim();
+		if(mobile.equals("")) {
+			return null;
+		}
+		
+		//remove the first 0 of australia mobile number
+		if(mobile.substring(0,1).equals("0")) {
+			mobile = mobile.substring(1);
+		}
+		
 		
 		String vert_code = String.valueOf((int)((Math.random()*9+1)*1000));
 		long currentTime = System.currentTimeMillis();
