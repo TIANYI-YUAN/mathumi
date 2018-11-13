@@ -85,6 +85,9 @@ public class AuthorizeController {
 			case 4://create new user via sign up form
 				temp = mapper.readValue(other, typeRef);
 				return signupNewUser(temp);
+			case 5://get user info
+				temp = mapper.readValue(other, typeRef);
+				return getUserInfoByToken(temp);
 			default:
 				return test3();
 				
@@ -107,6 +110,7 @@ public class AuthorizeController {
 		{
 			AuthorizeMapper.updateLogincookie(HoshiUmiLib.crypt(HoshiUmiLib.cookieGenerate(user.getUsername(),user.getPassword_salthash())),user.getUserid());
 			rs.put("username", user.getUsername());
+			rs.put("name", user.getFirstname()+" "+user.getLastname());
 			rs.put("authorizeToken", AuthorizeMapper.getLoginCookieByUsername(user.getUsername()));
 		}else {
 			rs.put("response", "password error");
@@ -238,8 +242,8 @@ public class AuthorizeController {
 		//Hash password
 		String hashed = BCrypt.hashpw(signup.get("password"), BCrypt.gensalt());
 		user.setPassword_salthash(hashed);
-		user.setFirstname(signup.get("firstname"));
-		user.setLastname(signup.get("lastname"));
+		user.setFirstname(signup.get("firstname").toUpperCase());
+		user.setLastname(signup.get("lastname").toUpperCase());
 		user.setPhone(signup.get("mobile"));
 		
 	
@@ -272,12 +276,16 @@ public class AuthorizeController {
 			rs.put("response_text", "ok");
 		}
 		
-	
+		
 		
 		return rs;
 	}
 	
+	public Map<String, String> getUserInfoByToken(Map<String, String> user) {
+		Map<String,String> rs = new HashMap<String,String>();
 	
+		return rs;
+	}
 	
 	
 	
