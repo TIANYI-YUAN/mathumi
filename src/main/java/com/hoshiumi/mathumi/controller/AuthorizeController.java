@@ -21,9 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hoshiumi.mathumi.entity.InvitationRecordEntity;
+import com.hoshiumi.mathumi.entity.MobileVertEntity;
 import com.hoshiumi.mathumi.entity.UserEntity;
 import com.hoshiumi.mathumi.lib.HoshiUmiLib;
 import com.hoshiumi.mathumi.mapper.*;
+import com.hoshiumi.mathumi.util.*;
+
 
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
@@ -78,6 +82,9 @@ public class AuthorizeController {
 			case 3://generate SMS vertification code
 				temp = mapper.readValue(other, typeRef);
 				return genSmsVert(temp.get("mobile"));
+			case 4://create new user via sign up form
+				temp = mapper.readValue(other, typeRef);
+				return signupNewUser(temp);
 			default:
 				return test3();
 				
@@ -96,7 +103,7 @@ public class AuthorizeController {
 			return rs;
 		}
 		
-		if(user.getPassword_salthash().equals(other.get("password")))
+		if(BCrypt.checkpw(other.get("password"),user.getPassword_salthash()))
 		{
 			AuthorizeMapper.updateLogincookie(HoshiUmiLib.crypt(HoshiUmiLib.cookieGenerate(user.getUsername(),user.getPassword_salthash())),user.getUserid());
 			rs.put("username", user.getUsername());
@@ -148,9 +155,10 @@ public class AuthorizeController {
 		currentTime +=30*60*1000;
 		Date expiry_time = new Date(currentTime);
 		
+		MobileVertEntity me = AuthorizeMapper.getExistSMSvertification(mobile);
 		
-		if(AuthorizeMapper.checkExistSMSvertification(mobile)==null) {
-		
+		if(me==null) {
+			// do mobile validation here  ----->
 			AuthorizeMapper.createMobileVertInstance(mobile, vert_code, expiry_time);
 		}else {
 			AuthorizeMapper.updateExistSMSvertification(mobile, vert_code, expiry_time);
@@ -178,4 +186,116 @@ public class AuthorizeController {
 		rs.put("SID", message.getSid());
 		return rs;
 	}
+	
+	
+	public Map<String, String> signupNewUser(Map<String, String> signup) {
+		Map<String,String> rs = new HashMap<String,String>();
+		
+		String mobile = signup.get("mobile").trim();
+		if(mobile.equals("")) {
+			return null;
+		}
+		//remove the first 0 of australia mobile number
+		if(mobile.substring(0,1).equals("0")) {
+			mobile = mobile.substring(1);
+		}
+		
+		MobileVertEntity me = AuthorizeMapper.getExistSMSvertification(mobile);
+		
+		if(AuthorizeMapper.getOneByUsername(signup.get("username"))!=null) {
+			rs.put("response_code", "4");
+			rs.put("response_text", "duplicate username");
+			return rs;
+		}
+		
+		if(me==null) {
+			rs.put("response_code", "1");
+			rs.put("response_text", "no such mobile number");
+			return rs;
+		}
+		
+		if(!me.getVert_code().equalsIgnoreCase(signup.get("vertification").trim())) {
+			rs.put("response_code", "2");
+			rs.put("response_text", "vertification code not correct");
+			return rs;
+		}
+		
+		String invitationEntityId = null;
+		if(!signup.get("invitation").trim().equals("")) {
+			invitationEntityId = AuthorizeMapper.getInvitationEntityIdByInvitationCode(signup.get("invitation").trim());
+			if(invitationEntityId==null) {
+				rs.put("response_code", "3");
+				rs.put("response_text", "no such invitation code");
+				return rs;
+			}
+			
+		}
+		
+		
+		//construct UserEntity instance
+		UserEntity user = new UserEntity();
+		user.setUsername(signup.get("username"));
+		//Hash password
+		String hashed = BCrypt.hashpw(signup.get("password"), BCrypt.gensalt());
+		user.setPassword_salthash(hashed);
+		user.setFirstname(signup.get("firstname"));
+		user.setLastname(signup.get("lastname"));
+		user.setPhone(signup.get("mobile"));
+		
+	
+		
+		
+		//preview finish, start sql inserting.
+		boolean updateFlag = AuthorizeMapper.createNewUserByForm(user);
+		if(!updateFlag) {
+			rs.put("response_code", "500");
+			//user table insert failed
+			rs.put("response_text", "db insert failed");
+		}
+		
+		//construct InvitationRecord instance
+		if(invitationEntityId!=null) {
+			InvitationRecordEntity invitationRecord = new InvitationRecordEntity();
+			invitationRecord.setInvitation_date(new Date());
+			invitationRecord.setUserid(AuthorizeMapper.getOneByUsername(user.getUsername()).getUserid());
+			invitationRecord.setInvitation_entityId(Long.parseLong(invitationEntityId));
+			
+			updateFlag = AuthorizeMapper.createInvitationRecord(invitationRecord);
+		}
+		
+		if(!updateFlag) {
+			rs.put("response_code", "501");
+			//invitation_record table insert failed
+			rs.put("response_text", "db insert failed");
+		}else {
+			rs.put("response_code", "200");
+			rs.put("response_text", "ok");
+		}
+		
+	
+		
+		return rs;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

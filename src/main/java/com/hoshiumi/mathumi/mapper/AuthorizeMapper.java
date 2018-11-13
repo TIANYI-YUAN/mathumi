@@ -11,6 +11,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
+import com.hoshiumi.mathumi.entity.InvitationRecordEntity;
+import com.hoshiumi.mathumi.entity.MobileVertEntity;
 import com.hoshiumi.mathumi.entity.UserEntity;
 
 @Component
@@ -38,7 +40,7 @@ public interface AuthorizeMapper {
 	String getLoginCookieByUsername(String username);
 	
 	@Select("SELECT * FROM mobile_vertification WHERE mobile = #{mobile}")
-	String checkExistSMSvertification(String mobile);
+	MobileVertEntity getExistSMSvertification(String mobile);
 	
 	@Update("UPDATE mobile_vertification SET vert_code=#{vert_code},expiry_time=#{expiry_time} WHERE mobile =#{mobile}")
     void updateExistSMSvertification(@Param("mobile")String mobile,@Param("vert_code")String vert_code,@Param("expiry_time")Date expiry_time);
@@ -47,12 +49,17 @@ public interface AuthorizeMapper {
             "VALUES(#{mobile},#{vert_code},#{expiry_time});")
     void createMobileVertInstance(@Param("mobile")String mobile,@Param("vert_code")String vert_code,@Param("expiry_time")Date expiry_time);
 
+	@Select("SELECT id FROM invitation_entity WHERE invitation_code = #{invitation_code}")
+	String getInvitationEntityIdByInvitationCode(String invitation_code);
+
+	@Insert("INSERT INTO user(username,password_salthash,firstname,lastname,phone)"+
+            "VALUES(#{username},#{password_salthash},#{firstname},#{lastname},#{phone});")
+	boolean createNewUserByForm(UserEntity user);
 
 
-
-
-
-
+	@Insert("INSERT INTO invitation_record(invitation_entityId,userid,timeid,invitation_date)"+
+            "VALUES(#{invitation_entityId},#{userid},#{timeid},#{invitation_date});")
+	boolean createInvitationRecord(InvitationRecordEntity entity);
 
 
 
