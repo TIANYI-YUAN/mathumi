@@ -39,13 +39,13 @@ public interface AuthorizeMapper {
 	@Select("SELECT logincookie FROM user WHERE username = #{username}")
 	String getLoginCookieByUsername(String username);
 	
-	@Select("SELECT * FROM mobile_vertification WHERE mobile = #{mobile}")
-	MobileVertEntity getExistSMSvertification(String mobile);
+	@Select("SELECT * FROM mobile_verification WHERE mobile = #{mobile}")
+	MobileVertEntity getExistSMSverification(String mobile);
 	
-	@Update("UPDATE mobile_vertification SET vert_code=#{vert_code},expiry_time=#{expiry_time} WHERE mobile =#{mobile}")
-    void updateExistSMSvertification(@Param("mobile")String mobile,@Param("vert_code")String vert_code,@Param("expiry_time")Date expiry_time);
+	@Update("UPDATE mobile_verification SET vert_code=#{vert_code},expiry_time=#{expiry_time} WHERE mobile =#{mobile}")
+    void updateExistSMSverification(@Param("mobile")String mobile,@Param("vert_code")String vert_code,@Param("expiry_time")Date expiry_time);
 	
-	@Insert("INSERT INTO mobile_vertification(mobile,vert_code,expiry_time)"+
+	@Insert("INSERT INTO mobile_verification(mobile,vert_code,expiry_time)"+
             "VALUES(#{mobile},#{vert_code},#{expiry_time});")
     void createMobileVertInstance(@Param("mobile")String mobile,@Param("vert_code")String vert_code,@Param("expiry_time")Date expiry_time);
 

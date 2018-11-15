@@ -159,13 +159,13 @@ public class AuthorizeController {
 		currentTime +=30*60*1000;
 		Date expiry_time = new Date(currentTime);
 		
-		MobileVertEntity me = AuthorizeMapper.getExistSMSvertification(mobile);
+		MobileVertEntity me = AuthorizeMapper.getExistSMSverification(mobile);
 		
 		if(me==null) {
 			// do mobile validation here  ----->
 			AuthorizeMapper.createMobileVertInstance(mobile, vert_code, expiry_time);
 		}else {
-			AuthorizeMapper.updateExistSMSvertification(mobile, vert_code, expiry_time);
+			AuthorizeMapper.updateExistSMSverification(mobile, vert_code, expiry_time);
 
 		}
 		
@@ -204,7 +204,7 @@ public class AuthorizeController {
 			mobile = mobile.substring(1);
 		}
 		
-		MobileVertEntity me = AuthorizeMapper.getExistSMSvertification(mobile);
+		MobileVertEntity me = AuthorizeMapper.getExistSMSverification(mobile);
 		
 		if(AuthorizeMapper.getOneByUsername(signup.get("username"))!=null) {
 			rs.put("response_code", "4");
