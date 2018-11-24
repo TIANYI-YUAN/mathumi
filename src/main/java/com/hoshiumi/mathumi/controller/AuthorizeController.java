@@ -112,6 +112,7 @@ public class AuthorizeController {
 			rs.put("username", user.getUsername());
 			rs.put("name", user.getFirstname()+" "+user.getLastname());
 			rs.put("authorizeToken", AuthorizeMapper.getLoginCookieByUsername(user.getUsername()));
+			rs.put("userid",user.getUserid().toString());
 		}else {
 			rs.put("response", "password error");
 		}
