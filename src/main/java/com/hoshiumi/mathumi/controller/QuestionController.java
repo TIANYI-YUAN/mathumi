@@ -94,8 +94,14 @@ public class QuestionController {
 	
 	public Map<String,String> test3() {
 		Map<String,String> rs = new HashMap<String,String>();
+		int j = 0;
+		try {
+            j++;
+            rs.put("response", String.valueOf(j));
+        } catch (Exception e) {
+            e.printStackTrace(); 
+        }
 		
-		rs.put("response", "test ok3!");
 		
 		return rs;
 	}
